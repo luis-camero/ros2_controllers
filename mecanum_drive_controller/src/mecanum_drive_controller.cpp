@@ -199,6 +199,8 @@ controller_interface::CallbackReturn MecanumDriveController::on_configure(
 
 void MecanumDriveController::reference_callback(const std::shared_ptr<ControllerReferenceMsg> msg)
 {
+  std::cout << "this is a test\n";
+  RCLCPP_INFO(get_node()->get_logger(), "reference_callback");
   // if no timestamp provided use current time for command timestamp
   if (msg->header.stamp.sec == 0 && msg->header.stamp.nanosec == 0u)
   {

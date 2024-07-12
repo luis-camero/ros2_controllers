@@ -88,6 +88,11 @@ public:
   using TfStateMsg = tf2_msgs::msg::TFMessage;
   using ControllerStateMsg = control_msgs::msg::MecanumDriveControllerState;
 
+  void reference_callback(const std::shared_ptr<ControllerReferenceMsg> msg);
+  double velocity_in_center_frame_linear_x_;   // [m/s]
+  double velocity_in_center_frame_linear_y_;   // [m/s]
+  double velocity_in_center_frame_angular_z_;  // [rad/s]
+
 protected:
   std::shared_ptr<mecanum_drive_controller::ParamListener> param_listener_;
   mecanum_drive_controller::Params params_;
@@ -151,12 +156,9 @@ protected:
 
 private:
   // callback for topic interface
-  MECANUM_DRIVE_CONTROLLER__VISIBILITY_LOCAL
-  void reference_callback(const std::shared_ptr<ControllerReferenceMsg> msg);
+  // MECANUM_DRIVE_CONTROLLER__VISIBILITY_LOCAL
 
-  double velocity_in_center_frame_linear_x_;   // [m/s]
-  double velocity_in_center_frame_linear_y_;   // [m/s]
-  double velocity_in_center_frame_angular_z_;  // [rad/s]
+
 };
 
 }  // namespace mecanum_drive_controller

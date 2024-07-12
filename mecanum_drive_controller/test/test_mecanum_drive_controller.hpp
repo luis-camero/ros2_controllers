@@ -89,7 +89,7 @@ public:
     // Only if on_configure is successful create subscription
     if (ret == CallbackReturn::SUCCESS)
     {
-      ref_subscriber_wait_set_.add_subscription(ref_subscriber_);
+      //ref_subscriber_wait_set_.add_subscription(ref_subscriber_);
     }
     return ret;
   }
@@ -110,7 +110,7 @@ public:
    */
   bool wait_for_command(
     rclcpp::Executor & executor, rclcpp::WaitSet & subscriber_wait_set,
-    const std::chrono::milliseconds & timeout = std::chrono::milliseconds{500})
+    const std::chrono::milliseconds & timeout = std::chrono::milliseconds(5000))
   {
     bool success = subscriber_wait_set.wait(timeout).kind() == rclcpp::WaitResultKind::Ready;
     if (success)
@@ -124,7 +124,8 @@ public:
     rclcpp::Executor & executor,
     const std::chrono::milliseconds & timeout = std::chrono::milliseconds{500})
   {
-    return wait_for_command(executor, ref_subscriber_wait_set_, timeout);
+    rclcpp::WaitSet wait_set(std::vector<rclcpp::WaitSet::SubscriptionEntry>{{ref_subscriber_}});
+    return wait_for_command(executor, wait_set, timeout);
   }
 
 private:
@@ -249,16 +250,18 @@ protected:
 
     wait_for_topic(command_publisher_->get_topic_name());
 
-    ControllerReferenceMsg msg;
-    msg.header.stamp = stamp;
-    msg.twist.linear.x = twist_linear_x;
-    msg.twist.linear.y = twist_linear_y;
-    msg.twist.linear.z = std::numeric_limits<double>::quiet_NaN();
-    msg.twist.angular.x = std::numeric_limits<double>::quiet_NaN();
-    msg.twist.angular.y = std::numeric_limits<double>::quiet_NaN();
-    msg.twist.angular.z = twist_angular_z;
 
-    command_publisher_->publish(msg);
+    std::shared_ptr<ControllerReferenceMsg> msg = std::shared_ptr<ControllerReferenceMsg>(new ControllerReferenceMsg);
+    msg->header.stamp = stamp;
+    msg->twist.linear.x = twist_linear_x;
+    msg->twist.linear.y = twist_linear_y;
+    msg->twist.linear.z = std::numeric_limits<double>::quiet_NaN();
+    msg->twist.angular.x = std::numeric_limits<double>::quiet_NaN();
+    msg->twist.angular.y = std::numeric_limits<double>::quiet_NaN();
+    msg->twist.angular.z = twist_angular_z;
+
+    command_publisher_->publish(*msg);
+    controller_->reference_callback(msg);
   }
 
 protected:
